@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+@theme {
+  /* Fontes */
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-logo: "Lobster", cursive;
+
+  /* Cores do protótipo */
+  --color-primaria: #5b8fd9;   /* botão Começar, "Mais+", ícones */
+  --color-propria: #57a03b;    /* Bom para banho! */
+  --color-impropria: #a3302f;  /* Evite banho */
+  --color-superficie: #f1f1f1; /* fundo da pesquisa e da localização */
+  --color-nav: #f3edf7;        /* fundo da barra de baixo */
+  --color-nav-ativo: #e8def8;  /* item selecionado da barra */
+}
