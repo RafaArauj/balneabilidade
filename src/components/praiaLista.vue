@@ -1,5 +1,8 @@
 <template>
-  <article class="flex items-center gap-4 rounded-2xl border border-[#E7E0EC] bg-white p-3 shadow-sm">
+  <component 
+    :is="to ? RouterLink : 'article'"
+    :to="to || undefined"
+    class="flex items-center gap-4 rounded-2xl border border-[#E7E0EC] bg-white p-3 shadow-sm">
     <!-- Miniatura -->
     <img
         :src="image"
@@ -25,11 +28,12 @@
         class="flex h-11 w-24 shrink-0 items-center justify-center rounded-xl px-2 text-center text-sm font-medium leading-tight text-white"
         :class="status.class"
     >{{ status.label }}</span>
-  </article>
+  </component>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 
 const props = defineProps({
   image: { type: String, required: true },
@@ -41,6 +45,7 @@ const props = defineProps({
     validator: (v) => ['propria', 'impropria'].includes(v),
   },
   distance: { type: Number, default: null },
+  to: { type: [String, Object], default: null },
 })
 
 const statusMap = {

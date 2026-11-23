@@ -11,16 +11,14 @@ const praiasFavoritas = computed(() =>
 </script>
 
 <template>
-  <Pagina>
-    <div class="flex flex-col gap-4">
-      <h1 class="text-xl font-bold text-[#1D1B20]">
-        Minhas praias favoritas
-      </h1>
+  <Pagina titulo="Favoritos">
+    <div class="flex flex-col gap-3">
 
       <div v-if="praiasFavoritas.length > 0" class="flex flex-col gap-3">
         <PraiaLista
           v-for="praia in praiasFavoritas"
           :key="praia.id"
+            :to="{ name: 'praia', params: { id: praia.id } }"
           :image="praia.image"
           :name="praia.name"
           :address="praia.address"
