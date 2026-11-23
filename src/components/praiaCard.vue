@@ -37,7 +37,7 @@ const iconStyle = (filled) => ({
 
 <template>
   <article
-      class="relative flex h-60 w-44 flex-col justify-end overflow-hidden rounded-3xl bg-cover bg-center p-2 shadow-md"
+      class="relative flex aspect-[3/4] w-full flex-col justify-end overflow-hidden rounded-3xl bg-cover bg-center p-2 shadow-md transition lg:hover:-translate-y-1 lg:hover:shadow-lg"
       :style="{ backgroundImage: `url('${image}')` }"
   >
     <!-- Favoritar -->
@@ -65,7 +65,7 @@ const iconStyle = (filled) => ({
       </p>
 
       <span
-          class="mx-auto mt-1 flex h-11 w-32 items-center justify-center rounded-xl px-3 text-center text-sm font-medium leading-tight text-white"
+          class="mx-auto mt-1 flex h-11 w-full max-w-40 items-center justify-center rounded-xl px-3 text-center text-sm font-medium leading-tight text-white"
           :class="status.class"
       >{{ status.label }}</span>
 

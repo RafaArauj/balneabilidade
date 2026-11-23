@@ -51,7 +51,11 @@ const praiasFiltradas = computed(() => {
     <section class="flex flex-col gap-3">
       <h2 class="text-2xl font-bold">Popular</h2>
 
-      <div v-if="praiasFiltradas.length" class="flex flex-wrap gap-2">
+      <!-- Grid: quantas colunas couberem (2 no celular, mais no computador) -->
+      <div
+          v-if="praiasFiltradas.length"
+          class="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-3 sm:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(12rem,1fr))]"
+      >
         <PraiaCard
             v-for="praia in praiasFiltradas"
             :key="praia.id"
