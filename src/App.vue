@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import Start from "@/components/start.vue";
+import { useRoute } from 'vue-router'
+import NavBar from '@/components/layout/navBar.vue'
+const route = useRoute()
 </script>
 
 <template>
-  <p class="mt-4 inline-block rounded-lg bg-propria px-4 py-2 text-white">Bom para banho!</p>
-  <p class="mt-2 ml-2 inline-block rounded-lg bg-impropria px-4 py-2 text-white">Evite banho</p>
-</template>
+  <div class="flex h-screen flex-col">
+    <main class="flex-1 overflow-y-auto" :class="{ 'py-4': !route.meta.hideNav }">
+      <RouterView />
+    </main>
 
-<style></style>
+    <NavBar v-if="!route.meta.hideNav" />
+  </div>
+</template>
