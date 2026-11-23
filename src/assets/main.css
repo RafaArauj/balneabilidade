@@ -14,3 +14,13 @@
   --color-nav: #f3edf7;        /* fundo da barra de baixo */
   --color-nav-ativo: #e8def8;  /* item selecionado da barra */
 }
+.icone-cheio {
+  font-variation-settings: 'FILL' 1;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}

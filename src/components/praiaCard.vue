@@ -11,6 +11,7 @@ const props = defineProps({
     validator: (v) => ['propria', 'impropria'].includes(v),
   },
   distance: { type: Number, default: null },
+  to: { type: [String, Object], default: null },
 })
 
 const favorite = defineModel('favorite', { type: Boolean, default: false })
@@ -40,10 +41,17 @@ const iconStyle = (filled) => ({
       class="relative flex aspect-[3/4] w-full flex-col justify-end overflow-hidden rounded-3xl bg-cover bg-center p-2 shadow-md transition lg:hover:-translate-y-1 lg:hover:shadow-lg"
       :style="{ backgroundImage: `url('${image}')` }"
   >
+    <RouterLink
+        v-if="to"
+        :to="to"
+        class="absolute inset-0 rounded-3xl focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primaria"
+        :aria-label="`Ver detalhes da ${name}`"
+    />
+
     <!-- Favoritar -->
     <button
         type="button"
-        class="absolute right-3 top-3 leading-none transition active:scale-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-full"
+        class="absolute right-3 top-3 z-10 leading-none transition active:scale-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-full"
         :aria-label="favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'"
         :aria-pressed="favorite"
         @click="favorite = !favorite"
@@ -56,7 +64,7 @@ const iconStyle = (filled) => ({
       >favorite</span>
     </button>
 
-    <div class="flex flex-col gap-1.5 rounded-2xl bg-white/75 px-3 pb-1.5 pt-3 backdrop-blur-md">
+    <div class="pointer-events-none flex flex-col gap-1.5 rounded-2xl bg-white/75 px-3 pb-1.5 pt-3 backdrop-blur-md">
       <h3 class="truncate text-sm font-bold text-[#1D1B20]">{{ name }}</h3>
 
       <p class="flex items-start gap-1 text-xs leading-tight text-[#79747E]">

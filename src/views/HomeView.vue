@@ -5,40 +5,20 @@ import Pagina from "@/components/layout/pagina.vue";
 import SearchBar from '@/components/searchBar.vue'
 import PraiaCard from "@/components/praiaCard.vue";
 import Proximas from "@/components/proximas.vue";
+import { praias } from "@/data/praias";
 
 
 const router = useRouter()
 const busca = ref('')
-
-const praias = ref([
-  {
-    id: 1,
-    image: `${import.meta.env.BASE_URL}praia-de-jurere.webp`,
-    name: 'Praia Ponta das Canas',
-    address: 'Rua Deputado Fernando Viegas, nº103',
-    quality: 'propria',
-    distance: 38,
-    favorite: false,
-  },
-  {
-    id: 2,
-    image: `${import.meta.env.BASE_URL}praia-de-jurere.webp`,
-    name: 'Praia do Sambaqui',
-    address: 'Rodovia Rafael da Rocha Pires, nº1964.',
-    quality: 'impropria',
-    distance: 16.5,
-    favorite: true,
-  },
-])
 
 const normalizar = (texto = '') =>
     texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
 
 const praiasFiltradas = computed(() => {
   const termo = normalizar(busca.value)
-  if (!termo) return praias.value
+  if (!termo) return praias
 
-  return praias.value.filter((p) =>
+  return praias.filter((p) =>
       normalizar(`${p.name} ${p.address}`).includes(termo)
   )
 })
@@ -65,6 +45,7 @@ const praiasFiltradas = computed(() => {
             :quality="praia.quality"
             :distance="praia.distance"
             v-model:favorite="praia.favorite"
+            :to="{ name: 'praia', params: { id: praia.id } }"
         />
       </div>
 

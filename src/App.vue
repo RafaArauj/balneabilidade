@@ -4,7 +4,7 @@ import NavBar from '@/components/layout/navBar.vue'
 
 <template>
   <div class="flex h-dvh flex-col">
-    <main class="flex-1 overflow-y-auto">
+    <main class="relative flex-1 overflow-y-auto overscroll-contain">
       <RouterView />
     </main>
 

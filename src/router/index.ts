@@ -32,6 +32,13 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Favoritos', icon: 'star', nav: true },
   },
   {
+    path: '/praia/:id',
+    name: 'praia',
+    component: () => import('@/views/PraiaView.vue'),
+    props: (route) => ({ id: Number(route.params.id) }),
+    meta: { title: 'Praia' },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: { name: 'inicio' },
   },

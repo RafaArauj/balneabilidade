@@ -1,0 +1,252 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import Pagina from '@/components/layout/pagina.vue'
+import BalaoAjuda from '@/components/balaoAjuda.vue'
+import { buscarPraia, type Qualidade } from '@/data/praias'
+
+const props = defineProps<{ id: number }>()
+
+const praia = computed(() => buscarPraia(props.id))
+
+const LIMITE_ECOLI = 800
+
+const statusMap: Record<Qualidade, { label: string; descricao: string; bg: string; text: string; icon: string }> = {
+  propria: {
+    label: 'Bom para banho!',
+    descricao: 'A última análise ficou dentro do limite recomendado.',
+    bg: 'bg-propria',
+    text: 'text-propria',
+    icon: 'check_circle',
+  },
+  impropria: {
+    label: 'Evite banho',
+    descricao: 'A última análise passou do limite recomendado. Evite entrar na água.',
+    bg: 'bg-impropria',
+    text: 'text-impropria',
+    icon: 'warning',
+  },
+}
+
+const formatarData = (iso: string, opcoes: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit' }) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString('pt-BR', opcoes)
+
+const formatarNumero = (n: number, casas = 1) => n.toLocaleString('pt-BR', { maximumFractionDigits: casas })
+
+const totalAvaliacoes = computed(() => praia.value?.distribuicaoNotas.reduce((a, b) => a + b, 0) ?? 0)
+
+const estrelas = (nota: number) =>
+  Array.from({ length: 5 }, (_, i) => (nota >= i + 1 ? 'star' : nota >= i + 0.5 ? 'star_half' : 'star_outline'))
+
+const distribuicao = computed(() => {
+  const p = praia.value
+  if (!p) return []
+  const max = Math.max(...p.distribuicaoNotas, 1)
+  return [5, 4, 3, 2, 1].map((n) => {
+    const qtd = p.distribuicaoNotas[n - 1] ?? 0
+    return { estrelas: n, qtd, largura: `${(qtd / max) * 100}%` }
+  })
+})
+
+const ultimaColeta = computed(() => praia.value?.coletas[0])
+
+const coletasProprias = computed(() => praia.value?.coletas.filter((c) => c.qualidade === 'propria').length ?? 0)
+
+const iconesInfra: Record<string, string> = {
+  'Salva-vidas': 'pool',
+  Estacionamento: 'local_parking',
+  Restaurantes: 'restaurant',
+  Banheiros: 'wc',
+}
+</script>
+
+<template>
+  <Pagina v-if="praia" :titulo="praia.name" voltar>
+    <template #acoes>
+      <button
+          type="button"
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition hover:bg-black/5 active:scale-90"
+          :aria-label="praia.favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'"
+          :aria-pressed="praia.favorite"
+          @click="praia.favorite = !praia.favorite"
+      >
+        <span
+            class="material-symbols-rounded icone-cheio text-2xl"
+            :class="praia.favorite ? 'text-[#E5484D]' : 'text-[#79747E]'"
+            aria-hidden="true"
+        >favorite</span>
+      </button>
+    </template>
+
+    <div class="flex flex-col gap-3">
+      <img
+          :src="praia.image"
+          :alt="`Foto da ${praia.name}`"
+          class="aspect-video w-full rounded-3xl object-cover shadow-md lg:max-h-96"
+      />
+      <p class="flex items-start gap-1 text-sm text-[#79747E]">
+        <span class="material-symbols-rounded icone-cheio text-lg leading-none" aria-hidden="true">location_on</span>
+        <span>{{ praia.address }} · {{ formatarNumero(praia.distance) }} Km de você</span>
+      </p>
+      <p class="text-base leading-relaxed">{{ praia.descricao }}</p>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      <section class="flex flex-col gap-3">
+        <h2 class="text-2xl font-bold">Qualidade da água</h2>
+
+        <div class="flex items-center gap-3 rounded-2xl p-4 text-white" :class="statusMap[praia.quality].bg">
+          <span class="material-symbols-rounded icone-cheio text-4xl" aria-hidden="true">{{ statusMap[praia.quality].icon }}</span>
+          <div class="flex flex-col">
+            <strong class="text-lg">{{ statusMap[praia.quality].label }}</strong>
+            <span class="text-sm opacity-90">{{ statusMap[praia.quality].descricao }}</span>
+          </div>
+        </div>
+
+        <dl class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1 rounded-2xl bg-superficie p-3">
+            <dt class="text-xs text-[#79747E]">Última análise</dt>
+            <dd class="text-lg font-bold">
+              {{ ultimaColeta ? formatarData(ultimaColeta.data, { day: '2-digit', month: 'short' }) : '—' }}
+            </dd>
+          </div>
+          <div class="flex flex-col gap-1 rounded-2xl bg-superficie p-3">
+            <dt class="text-xs text-[#79747E]">Temperatura da água</dt>
+            <dd class="text-lg font-bold">{{ praia.temperaturaAgua }} °C</dd>
+          </div>
+          <BalaoAjuda class="col-span-2 flex flex-col gap-2 rounded-2xl bg-superficie p-3">
+            <dt class="flex justify-between text-xs text-[#79747E]">
+              <span class="flex items-center gap-1">
+                <span class="italic">E. coli</span> (NMP/100 mL)
+                <span class="material-symbols-rounded text-base leading-none" aria-hidden="true">info</span>
+              </span>
+              <span>limite {{ LIMITE_ECOLI }}</span>
+            </dt>
+
+            <template #conteudo>
+              <strong class="text-base">O que é <span class="italic">E. coli</span>?</strong>
+              <p>
+                A <span class="italic">Escherichia coli</span> é uma bactéria que vive no intestino de pessoas e animais.
+                Quando aparece na água do mar, é sinal de contaminação por <strong>esgoto</strong> — por isso é usada
+                para avaliar se a praia está boa para banho.
+              </p>
+              <p>
+                <strong>NMP/100 mL</strong> é o Número Mais Provável de bactérias em 100 mL de água. Quanto menor,
+                melhor.
+              </p>
+              <p>
+                Até <strong>{{ LIMITE_ECOLI }}</strong> é considerado satisfatório pela Resolução CONAMA 274/2000.
+                Acima disso, o banho pode causar diarreia e infecções de pele, olhos e ouvidos.
+              </p>
+            </template>
+            <dd v-if="ultimaColeta" class="flex flex-col gap-1">
+              <span class="text-lg font-bold" :class="statusMap[ultimaColeta.qualidade].text">
+                {{ ultimaColeta.eColi.toLocaleString('pt-BR') }}
+              </span>
+              <!-- Barra: posição do valor em relação ao limite -->
+              <div class="relative h-2 overflow-hidden rounded-full bg-black/10">
+                <div
+                    class="h-full rounded-full"
+                    :class="statusMap[ultimaColeta.qualidade].bg"
+                    :style="{ width: `${Math.min(ultimaColeta.eColi / (LIMITE_ECOLI * 2), 1) * 100}%` }"
+                />
+                <div class="absolute inset-y-0 left-1/2 w-0.5 bg-[#1D1B20]/50" title="Limite" />
+              </div>
+            </dd>
+          </BalaoAjuda>
+          <div class="col-span-2 flex flex-col gap-1 rounded-2xl bg-superficie p-3">
+            <dt class="text-xs text-[#79747E]">Ponto de coleta</dt>
+            <dd class="text-sm font-semibold">{{ praia.pontoColeta }}</dd>
+          </div>
+        </dl>
+
+        <!-- Histórico -->
+        <div class="flex flex-col gap-2">
+          <h3 class="text-base font-bold">
+            Últimas coletas
+            <span class="font-normal text-[#79747E]">· {{ coletasProprias }} de {{ praia.coletas.length }} próprias</span>
+          </h3>
+          <ol class="grid grid-cols-5 gap-2">
+            <li
+                v-for="coleta in [...praia.coletas].reverse()"
+                :key="coleta.data"
+                class="flex flex-col items-center gap-1"
+            >
+              <span
+                  class="flex h-9 w-full items-center justify-center rounded-xl text-white"
+                  :class="statusMap[coleta.qualidade].bg"
+                  :title="`${statusMap[coleta.qualidade].label} · E. coli ${coleta.eColi}`"
+              >
+                <span class="material-symbols-rounded icone-cheio text-xl" aria-hidden="true">
+                  {{ coleta.qualidade === 'propria' ? 'check' : 'close' }}
+                </span>
+                <span class="sr-only">{{ statusMap[coleta.qualidade].label }}</span>
+              </span>
+              <span class="text-xs text-[#79747E]">{{ formatarData(coleta.data) }}</span>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Avaliações -->
+      <section class="flex flex-col gap-3">
+        <h2 class="text-2xl font-bold">Avaliações</h2>
+
+        <div class="flex items-center gap-5 rounded-2xl bg-superficie p-4">
+          <div class="flex shrink-0 flex-col items-center gap-1">
+            <span class="text-5xl font-bold leading-none">{{ formatarNumero(praia.nota) }}</span>
+            <span class="flex text-amber-500" :aria-label="`Nota ${formatarNumero(praia.nota)} de 5`">
+              <span
+                  v-for="(icone, i) in estrelas(praia.nota)"
+                  :key="i"
+                  class="material-symbols-rounded text-lg leading-none"
+                  :class="{ 'icone-cheio': icone !== 'star_outline' }"
+                  aria-hidden="true"
+              >{{ icone === 'star_outline' ? 'star' : icone }}</span>
+            </span>
+            <span class="text-xs text-[#79747E]">{{ totalAvaliacoes }} avaliações</span>
+          </div>
+
+          <ul class="flex flex-1 flex-col gap-1" aria-label="Distribuição das notas">
+            <li v-for="linha in distribuicao" :key="linha.estrelas" class="flex items-center gap-2 text-xs">
+              <span class="w-2 text-[#79747E]">{{ linha.estrelas }}</span>
+              <div class="h-2 flex-1 overflow-hidden rounded-full bg-black/10">
+                <div class="h-full rounded-full bg-amber-500" :style="{ width: linha.largura }" />
+              </div>
+              <span class="w-6 text-right text-[#79747E]">{{ linha.qtd }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <ul class="flex flex-col gap-3">
+          <li
+              v-for="avaliacao in praia.avaliacoes"
+              :key="avaliacao.autor + avaliacao.data"
+              class="flex flex-col gap-1 rounded-2xl border border-[#E7E0EC] p-3"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <strong class="text-sm">{{ avaliacao.autor }}</strong>
+              <span class="text-xs text-[#79747E]">{{ formatarData(avaliacao.data) }}</span>
+            </div>
+            <span class="flex text-amber-500" :aria-label="`Nota ${avaliacao.nota} de 5`">
+              <span
+                  v-for="(icone, i) in estrelas(avaliacao.nota)"
+                  :key="i"
+                  class="material-symbols-rounded text-base leading-none"
+                  :class="{ 'icone-cheio': icone !== 'star_outline' }"
+                  aria-hidden="true"
+              >{{ icone === 'star_outline' ? 'star' : icone }}</span>
+            </span>
+            <p class="text-sm">{{ avaliacao.comentario }}</p>
+          </li>
+        </ul>
+      </section>
+    </div>
+
+
+  </Pagina>
+
+  <Pagina v-else titulo="Praia não encontrada" voltar>
+    <p class="text-sm text-[#79747E]">Não encontramos essa praia. Ela pode ter sido removida.</p>
+    <RouterLink :to="{ name: 'inicio' }" class="text-primaria hover:underline">Voltar ao início</RouterLink>
+  </Pagina>
+</template>

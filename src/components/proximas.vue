@@ -29,6 +29,10 @@ const visibleBeaches = computed(() =>
 
     <ul class="flex flex-col gap-3">
       <li v-for="praia in visibleBeaches" :key="praia.id">
+        <RouterLink
+            :to="{ name: 'praia', params: { id: praia.id } }"
+            class="block rounded-2xl transition hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primaria"
+        >
         <praia-lista
             :image="praia.image"
             :name="praia.name"
@@ -36,6 +40,7 @@ const visibleBeaches = computed(() =>
             :quality="praia.quality"
             :distance="praia.distance"
         />
+        </RouterLink>
       </li>
     </ul>
   </section>
