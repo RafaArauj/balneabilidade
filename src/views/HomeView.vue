@@ -12,7 +12,7 @@ const busca = ref('')
 const praias = ref([
   {
     id: 1,
-    image: '/praia-de-jurere.webp',
+    image: `${import.meta.env.BASE_URL}praia-de-jurere.webp`,
     name: 'Praia Ponta das Canas',
     address: 'Rua Deputado Fernando Viegas, nº103',
     quality: 'propria',
@@ -21,7 +21,7 @@ const praias = ref([
   },
   {
     id: 2,
-    image: '/praia-de-jurere.webp',
+    image: `${import.meta.env.BASE_URL}praia-de-jurere.webp`,
     name: 'Praia do Sambaqui',
     address: 'Rodovia Rafael da Rocha Pires, nº1964.',
     quality: 'impropria',
