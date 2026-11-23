@@ -1,6 +1,9 @@
+<script setup lang="ts">
+import Pagina from '@/components/layout/pagina.vue'
+</script>
+
 <template>
-  <section class="flex flex-col gap-4 p-4">
-    <span class="text-3xl font-bold pt-6">Favoritos</span>
+  <Pagina>
     <p class="text-sm text-[#79747E]">Suas praias favoritas aparecerão aqui.</p>
-  </section>
+  </Pagina>
 </template>

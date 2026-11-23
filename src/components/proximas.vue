@@ -19,7 +19,7 @@ const visibleBeaches = computed(() =>
 <template>
   <section class="flex flex-col gap-3">
     <header class="flex items-center justify-between">
-      <span class="text-2xl font-bold pt-6">Próximas de você</span>
+      <h2 class="text-2xl font-bold">Próximas de você</h2>
       <button
           type="button"
           class="text-lg text-[#4A90E2] hover:underline focus:outline-none focus-visible:underline"

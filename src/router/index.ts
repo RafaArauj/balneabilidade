@@ -4,7 +4,6 @@ declare module 'vue-router' {
     title?: string
     icon?: string
     nav?: boolean
-    hideNav?: boolean
   }
 }
 
@@ -13,7 +12,6 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     name: 'start',
     component: () => import('@/views/start.vue'),
-    meta: { hideNav: true },
   },*/
   {
     path: '/inicio',
@@ -23,7 +21,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/mapa',
-    name: 'mapa ',
+    name: 'mapa',
     component: () => import('@/views/MapaView.vue'),
     meta: { title: 'Mapa', icon: 'map', nav: true },
   },
