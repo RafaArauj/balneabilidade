@@ -1,12 +1,42 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import Pagina from '@/components/layout/pagina.vue'
 import BalaoAjuda from '@/components/balaoAjuda.vue'
-import { buscarPraia, type Qualidade } from '@/data/praias'
+import { buscarPraia, registrarAvaliacao, type Avaliacao, type Qualidade } from '@/data/praias'
 
 const props = defineProps<{ id: number }>()
 
 const praia = computed(() => buscarPraia(props.id))
+
+const nomeAvaliador = ref('')
+const notaAvaliador = ref(5)
+const dataVisita = ref(new Date().toLocaleDateString('en-CA'))
+const comentarioAvaliador = ref('')
+const limpezaAvaliador = ref(5)
+const estruturaAvaliador = ref(5)
+const aguaAvaliador = ref(5)
+const mensagemAvaliacao = ref('')
+
+const enviarAvaliacao = () => {
+  if (!praia.value || !nomeAvaliador.value.trim() || !comentarioAvaliador.value.trim() || !dataVisita.value) {
+    mensagemAvaliacao.value = 'Preencha seu nome, a data da visita e o comentário.'
+    return
+  }
+  const avaliacao: Avaliacao = {
+    autor: nomeAvaliador.value.trim(),
+    nota: notaAvaliador.value,
+    comentario: comentarioAvaliador.value.trim(),
+    data: dataVisita.value,
+    limpeza: limpezaAvaliador.value,
+    estrutura: estruturaAvaliador.value,
+    qualidadeAgua: aguaAvaliador.value,
+  }
+  registrarAvaliacao(praia.value.id, avaliacao)
+  nomeAvaliador.value = ''
+  notaAvaliador.value = 5
+  comentarioAvaliador.value = ''
+  mensagemAvaliacao.value = 'Sua avaliação foi registrada neste dispositivo. Obrigado!'
+}
 
 const LIMITE_ECOLI = 800
 
@@ -217,6 +247,51 @@ const iconesInfra: Record<string, string> = {
           </ul>
         </div>
 
+        <form class="flex flex-col gap-3 rounded-2xl border border-[#E7E0EC] p-4" @submit.prevent="enviarAvaliacao">
+          <h3 class="text-base font-bold">Conte como foi sua visita</h3>
+          <label class="flex flex-col gap-1 text-sm font-semibold">
+            Seu nome
+            <input v-model="nomeAvaliador" required maxlength="50" placeholder="Como devemos identificar você?" class="rounded-xl border border-[#D8D2DC] bg-white px-3 py-2 font-normal outline-none focus:border-primaria" />
+          </label>
+          <div class="flex flex-col gap-1">
+            <span class="text-sm font-semibold">Sua nota geral</span>
+            <div class="flex gap-1" role="group" aria-label="Escolha uma nota de 1 a 5 estrelas">
+              <button v-for="n in 5" :key="n" type="button" class="text-3xl text-amber-500" :aria-label="`${n} estrelas`" :aria-pressed="notaAvaliador === n" @click="notaAvaliador = n">
+                <span class="material-symbols-rounded" :class="{ 'icone-cheio': notaAvaliador >= n }">{{ notaAvaliador >= n ? 'star' : 'star_outline' }}</span>
+              </button>
+              <span class="self-center text-sm text-[#79747E]">{{ notaAvaliador }}/5</span>
+            </div>
+          </div>
+          <label class="flex flex-col gap-1 text-sm font-semibold">
+            Data da visita
+            <input v-model="dataVisita" type="date" required :max="new Date().toLocaleDateString('en-CA')" class="rounded-xl border border-[#D8D2DC] bg-white px-3 py-2 font-normal outline-none focus:border-primaria" />
+          </label>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <label class="flex flex-col gap-1 text-sm font-semibold">Limpeza
+              <select v-model.number="limpezaAvaliador" class="rounded-xl border border-[#D8D2DC] bg-white px-2 py-2 font-normal">
+                <option v-for="n in 5" :key="n" :value="n">{{ n }} / 5</option>
+              </select>
+            </label>
+            <label class="flex flex-col gap-1 text-sm font-semibold">Estrutura
+              <select v-model.number="estruturaAvaliador" class="rounded-xl border border-[#D8D2DC] bg-white px-2 py-2 font-normal">
+                <option v-for="n in 5" :key="n" :value="n">{{ n }} / 5</option>
+              </select>
+            </label>
+            <label class="flex flex-col gap-1 text-sm font-semibold">Qualidade percebida da água
+              <select v-model.number="aguaAvaliador" class="rounded-xl border border-[#D8D2DC] bg-white px-2 py-2 font-normal">
+                <option v-for="n in 5" :key="n" :value="n">{{ n }} / 5</option>
+              </select>
+            </label>
+          </div>
+          <label class="flex flex-col gap-1 text-sm font-semibold">
+            Comentário
+            <textarea v-model="comentarioAvaliador" required maxlength="500" rows="3" placeholder="O que você achou da praia?" class="resize-y rounded-xl border border-[#D8D2DC] bg-white px-3 py-2 font-normal outline-none focus:border-primaria"></textarea>
+          </label>
+          <p v-if="mensagemAvaliacao" class="text-sm text-[#397A35]" role="status">{{ mensagemAvaliacao }}</p>
+          <button type="submit" class="rounded-xl bg-primaria px-4 py-3 font-bold text-white transition hover:opacity-90">Enviar avaliação</button>
+          <p class="text-xs text-[#79747E]">As avaliações enviadas neste protótipo ficam salvas apenas neste navegador. A nota de balneabilidade oficial é apresentada separadamente.</p>
+        </form>
+
         <ul class="flex flex-col gap-3">
           <li
               v-for="avaliacao in praia.avaliacoes"
@@ -237,6 +312,9 @@ const iconesInfra: Record<string, string> = {
               >{{ icone === 'star_outline' ? 'star' : icone }}</span>
             </span>
             <p class="text-sm">{{ avaliacao.comentario }}</p>
+            <p v-if="avaliacao.limpeza || avaliacao.estrutura || avaliacao.qualidadeAgua" class="text-xs text-[#79747E]">
+              Limpeza: {{ avaliacao.limpeza ?? '—' }}/5 · Estrutura: {{ avaliacao.estrutura ?? '—' }}/5 · Água percebida: {{ avaliacao.qualidadeAgua ?? '—' }}/5
+            </p>
           </li>
         </ul>
       </section>

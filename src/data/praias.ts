@@ -13,10 +13,15 @@ export interface Avaliacao {
   nota: number
   comentario: string
   data: string
+  limpeza?: number
+  estrutura?: number
+  qualidadeAgua?: number
 }
 
 export interface Praia {
   id: number
+  latitude: number
+  longitude: number
   image: string
   name: string
   address: string
@@ -38,6 +43,8 @@ const img = (arquivo: string) => `${import.meta.env.BASE_URL}${arquivo}`
 export const praias = reactive<Praia[]>([
   {
     id: 1,
+    latitude: -27.3949,
+    longitude: -48.4268,
     image: img('praia-de-jurere.webp'),
     name: 'Praia Ponta das Canas',
     address: 'Rua Deputado Fernando Viegas, nº103',
@@ -65,6 +72,8 @@ export const praias = reactive<Praia[]>([
   },
   {
     id: 2,
+    latitude: -27.4945,
+    longitude: -48.5360,
     image: img('praia-de-jurere.webp'),
     name: 'Praia do Sambaqui',
     address: 'Rodovia Rafael da Rocha Pires, nº1964.',
@@ -93,3 +102,50 @@ export const praias = reactive<Praia[]>([
 ])
 
 export const buscarPraia = (id: number) => praias.find((p) => p.id === id)
+
+
+// As novas avaliações ficam salvas neste navegador. Para compartilhar entre
+// diferentes dispositivos/usuários, será necessário conectar um backend.
+const CHAVE_AVALIACOES = 'balneabilidade-avaliacoes-v1'
+
+const atualizarResumo = (praia: Praia) => {
+  const total = praia.distribuicaoNotas.reduce((soma, quantidade) => soma + quantidade, 0)
+  const somaNotas = praia.distribuicaoNotas.reduce((soma, quantidade, indice) => soma + quantidade * (indice + 1), 0)
+  praia.nota = total ? Number((somaNotas / total).toFixed(1)) : 0
+}
+
+const carregarAvaliacoesSalvas = () => {
+  if (typeof localStorage === 'undefined') return
+  try {
+    const salvas = JSON.parse(localStorage.getItem(CHAVE_AVALIACOES) ?? '{}') as Record<string, Avaliacao[]>
+    praias.forEach((praia) => {
+      const novas = salvas[String(praia.id)] ?? []
+      novas.forEach((avaliacao) => {
+        praia.avaliacoes.unshift(avaliacao)
+        praia.distribuicaoNotas[avaliacao.nota - 1] += 1
+      })
+      atualizarResumo(praia)
+    })
+  } catch {
+    // Ignora dados locais inválidos sem impedir o carregamento da página.
+  }
+}
+
+carregarAvaliacoesSalvas()
+
+export const registrarAvaliacao = (praiaId: number, avaliacao: Avaliacao) => {
+  const praia = buscarPraia(praiaId)
+  if (!praia) return false
+  praia.avaliacoes.unshift(avaliacao)
+  praia.distribuicaoNotas[avaliacao.nota - 1] += 1
+  atualizarResumo(praia)
+
+  try {
+    const salvas = JSON.parse(localStorage.getItem(CHAVE_AVALIACOES) ?? '{}') as Record<string, Avaliacao[]>
+    salvas[String(praiaId)] = [avaliacao, ...(salvas[String(praiaId)] ?? [])]
+    localStorage.setItem(CHAVE_AVALIACOES, JSON.stringify(salvas))
+  } catch {
+    // A avaliação aparece na sessão atual mesmo se o navegador bloquear o armazenamento.
+  }
+  return true
+}
