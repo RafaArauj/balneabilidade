@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import Pagina from '@/components/layout/pagina.vue'
@@ -11,25 +10,17 @@ const praiasFavoritas = computed(() =>
 </script>
 
 <template>
-<<<<<<< HEAD
   <Pagina titulo="Favoritos">
-    <div class="flex flex-col gap-3">
-=======
-  <Pagina>
     <div class="flex flex-col gap-4">
       <h1 class="text-xl font-bold text-[#1D1B20]">
         Minhas praias favoritas
       </h1>
->>>>>>> 3453230 (Mapa adicionado e avaliação implementada.)
 
       <div v-if="praiasFavoritas.length > 0" class="flex flex-col gap-3">
         <PraiaLista
           v-for="praia in praiasFavoritas"
           :key="praia.id"
-<<<<<<< HEAD
-            :to="{ name: 'praia', params: { id: praia.id } }"
-=======
->>>>>>> 3453230 (Mapa adicionado e avaliação implementada.)
+          :to="{ name: 'praia', params: { id: praia.id } }"
           :image="praia.image"
           :name="praia.name"
           :address="praia.address"
