@@ -149,3 +149,17 @@ export const registrarAvaliacao = (praiaId: number, avaliacao: Avaliacao) => {
   }
   return true
 }
+
+
+export const atualizarBalneabilidade = (
+  praiaId: number,
+  qualidade: Qualidade
+) => {
+  const praia = buscarPraia(praiaId)
+
+  if (!praia) return false
+
+  praia.quality = qualidade
+
+  return true
+}
