@@ -150,7 +150,27 @@ export const registrarAvaliacao = (praiaId: number, avaliacao: Avaliacao) => {
   return true
 }
 
+const CHAVE_BALNEABILIDADE = 'balneabilidade-status-v1'
 
+const carregarBalneabilidade = () => {
+  try {
+    const salvas = JSON.parse(
+      localStorage.getItem(CHAVE_BALNEABILIDADE) ?? '{}'
+    )
+
+    praias.forEach((praia) => {
+      const qualidade = salvas[String(praia.id)]
+
+      if (qualidade === 'propria' || qualidade === 'impropria') {
+        praia.quality = qualidade
+      }
+    })
+  } catch {
+    // Ignora dados locais invalidos.
+  }
+}
+
+carregarBalneabilidade()
 export const atualizarBalneabilidade = (
   praiaId: number,
   qualidade: Qualidade
@@ -158,6 +178,21 @@ export const atualizarBalneabilidade = (
   const praia = buscarPraia(praiaId)
 
   if (!praia) return false
+
+  try {
+    const salvas = JSON.parse(
+      localStorage.getItem(CHAVE_BALNEABILIDADE) ?? '{}'
+    )
+
+    salvas[String(praiaId)] = qualidade
+
+    localStorage.setItem(
+      CHAVE_BALNEABILIDADE,
+      JSON.stringify(salvas)
+    )
+  } catch {
+    return false
+  }
 
   praia.quality = qualidade
 
