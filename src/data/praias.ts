@@ -122,7 +122,8 @@ const carregarAvaliacoesSalvas = () => {
       const novas = salvas[String(praia.id)] ?? []
       novas.forEach((avaliacao) => {
         praia.avaliacoes.unshift(avaliacao)
-        praia.distribuicaoNotas[avaliacao.nota - 1] += 1
+ praia.distribuicaoNotas[avaliacao.nota - 1] =
+  (praia.distribuicaoNotas[avaliacao.nota - 1] ?? 0) + 1
       })
       atualizarResumo(praia)
     })
@@ -137,7 +138,8 @@ export const registrarAvaliacao = (praiaId: number, avaliacao: Avaliacao) => {
   const praia = buscarPraia(praiaId)
   if (!praia) return false
   praia.avaliacoes.unshift(avaliacao)
-  praia.distribuicaoNotas[avaliacao.nota - 1] += 1
+  praia.distribuicaoNotas[avaliacao.nota - 1] =
+  (praia.distribuicaoNotas[avaliacao.nota - 1] ?? 0) + 1
   atualizarResumo(praia)
 
   try {
