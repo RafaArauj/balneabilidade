@@ -38,6 +38,12 @@ const routes: RouteRecordRaw[] = [
     props: (route) => ({ id: Number(route.params.id) }),
     meta: { title: 'Praia' },
   },
+{
+    path: '/admin',
+    name: 'admin',
+    component: () => import('@/views/AdminView.vue'),
+    meta: { title: 'Administração', icon: 'admin_panel_settings', nav: false },
+  },
   {
     path: '/:pathMatch(.*)*',
     redirect: { name: 'inicio' },
