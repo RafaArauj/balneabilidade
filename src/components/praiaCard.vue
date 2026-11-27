@@ -45,7 +45,7 @@ const iconStyle = (filled) => ({
         v-if="to"
         :to="to"
         class="absolute inset-0 rounded-3xl focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primaria"
-        :aria-label="`Ver detalhes da ${name}`"
+        :aria-label="`Ver detalhes de ${name}`"
     />
 
     <!-- Favoritar -->
@@ -65,9 +65,10 @@ const iconStyle = (filled) => ({
     </button>
 
     <div class="pointer-events-none flex flex-col gap-1.5 rounded-2xl bg-white/75 px-3 pb-1.5 pt-3 backdrop-blur-md">
-      <h3 class="truncate text-sm font-bold text-[#1D1B20]">{{ name }}</h3>
+      <!-- Altura fixa de 2 linhas para título e endereço: todos os cards ficam alinhados -->
+      <h3 class="line-clamp-2 h-10 text-sm font-bold leading-5 text-[#1D1B20]" :title="name">{{ name }}</h3>
 
-      <p class="flex items-start gap-1 text-xs leading-tight text-[#79747E]">
+      <p class="flex h-[1.875rem] items-start gap-1 overflow-hidden text-xs leading-[0.9375rem] text-[#79747E]" :title="address">
         <span class="shrink-0 text-lg leading-none" :style="iconStyle(true)" aria-hidden="true">location_on</span>
         <span class="line-clamp-2">{{ address }}</span>
       </p>

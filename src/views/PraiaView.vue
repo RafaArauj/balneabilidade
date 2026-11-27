@@ -110,9 +110,16 @@ const iconesInfra: Record<string, string> = {
     <div class="flex flex-col gap-3">
       <img
           :src="praia.image"
-          :alt="`Foto da ${praia.name}`"
+          :alt="`Foto de ${praia.name}`"
           class="aspect-video w-full rounded-3xl object-cover shadow-md lg:max-h-96"
       />
+      <p v-if="praia.creditoFoto" class="-mt-1 text-xs text-[#79747E]">
+        Foto:
+        <a :href="praia.creditoFoto.url" target="_blank" rel="noopener noreferrer" class="underline">
+          {{ praia.creditoFoto.autor }}
+        </a>
+        · {{ praia.creditoFoto.licenca }} · Wikimedia Commons
+      </p>
       <p class="flex items-start gap-1 text-sm text-[#79747E]">
         <span class="material-symbols-rounded icone-cheio text-lg leading-none" aria-hidden="true">location_on</span>
         <span>{{ praia.address }} · {{ formatarNumero(praia.distance) }} Km de você</span>
