@@ -1,12 +1,30 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import Pagina from '@/components/layout/pagina.vue'
 import BalaoAjuda from '@/components/balaoAjuda.vue'
+import ModalFoto, { registrarPrimeiraVisita } from '@/components/modalFoto.vue'
 import { buscarPraia, registrarAvaliacao, type Avaliacao, type Qualidade } from '@/data/praias'
 
 const props = defineProps<{ id: number }>()
 
 const praia = computed(() => buscarPraia(props.id))
+
+// Link do endereço para o Google Maps (abre em nova aba; no celular, abre o app se instalado).
+const linkMaps = computed(() => {
+  if (!praia.value) return ''
+  const endereco = praia.value.address.replace(/n[º°]s*/gi, '')
+  const busca = `${endereco}, Florianópolis - SC`
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(busca)}`
+})
+
+const modalFotoAberto = ref(false)
+watch(
+  () => props.id,
+  () => {
+    modalFotoAberto.value = !!praia.value && registrarPrimeiraVisita(props.id)
+  },
+  { immediate: true },
+)
 
 const nomeAvaliador = ref('')
 const notaAvaliador = ref(5)
@@ -120,9 +138,26 @@ const iconesInfra: Record<string, string> = {
         </a>
         · {{ praia.creditoFoto.licenca }} · Wikimedia Commons
       </p>
+      <button
+          type="button"
+          class="-mt-1 flex w-fit items-center gap-1 rounded-full text-sm font-semibold text-primaria hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primaria"
+          @click="modalFotoAberto = true"
+      >
+        <span class="material-symbols-rounded text-lg leading-none" aria-hidden="true">add_a_photo</span>
+        Enviar uma foto desta praia
+      </button>
       <p class="flex items-start gap-1 text-sm text-[#79747E]">
         <span class="material-symbols-rounded icone-cheio text-lg leading-none" aria-hidden="true">location_on</span>
-        <span>{{ praia.address }} · {{ formatarNumero(praia.distance) }} Km de você</span>
+        <span>
+          <a
+              :href="linkMaps"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline decoration-[#79747E]/50 underline-offset-2 transition hover:text-primaria hover:decoration-primaria focus:outline-none focus-visible:rounded focus-visible:ring-2 focus-visible:ring-primaria"
+              :aria-label="`${praia.address}: abrir no Google Maps (nova aba)`"
+          >{{ praia.address }}<span class="material-symbols-rounded ml-0.5 align-[-0.15em] !text-[0.95em] leading-none" aria-hidden="true">open_in_new</span></a>
+          · {{ formatarNumero(praia.distance) }} Km de você
+        </span>
       </p>
       <p class="text-base leading-relaxed">{{ praia.descricao }}</p>
     </div>
@@ -328,6 +363,7 @@ const iconesInfra: Record<string, string> = {
     </div>
 
 
+    <ModalFoto v-model="modalFotoAberto" :praia-id="praia.id" :praia-nome="praia.name" />
   </Pagina>
 
   <Pagina v-else titulo="Praia não encontrada" voltar>

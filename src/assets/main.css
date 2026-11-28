@@ -5,6 +5,7 @@
   /* Fontes */
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
   --font-logo: "Lobster", cursive;
+  --font-marca: "Baloo 2", "Nunito", ui-sans-serif, system-ui, sans-serif; /* título da barra lateral */
 
   /* Cores do protótipo */
   --color-primaria: #5b8fd9;   /* botão Começar, "Mais+", ícones */

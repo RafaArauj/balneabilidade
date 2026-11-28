@@ -5,6 +5,7 @@ const props = defineProps({
   icon: { type: String, required: true },
   label: { type: String, default: '' },
   active: { type: Boolean, default: false },
+  compacto: { type: Boolean, default: false },
   variant: { type: String as PropType<'outlined' | 'rounded' | 'sharp'>, default: 'rounded' },
   filled: { type: Boolean, default: true },
 
@@ -38,14 +39,19 @@ const iconStyle = computed<CSSProperties>(() => ({
 <template>
   <button
       type="button"
-      class="group inline-flex flex-col items-center gap-1 bg-transparent p-0 cursor-pointer focus:outline-none"
+      class="group inline-flex flex-col items-center gap-1 bg-transparent p-0 cursor-pointer focus:outline-none
+             lg:flex lg:h-14 lg:w-full lg:flex-row lg:gap-3 lg:rounded-full lg:transition
+             lg:focus-visible:ring-2 lg:focus-visible:ring-[#4A4458]"
+      :class="[active ? 'lg:bg-nav-ativo' : 'lg:hover:bg-black/5', compacto ? 'lg:justify-center' : 'lg:px-4']"
+      :title="compacto ? label : undefined"
       :aria-current="active ? 'page' : undefined"
       @click="$emit('click', $event)"
   >
     <span
         class="flex h-8 w-16 items-center justify-center rounded-full transition
              group-hover:brightness-95 group-active:scale-95
-             group-focus-visible:ring-2 group-focus-visible:ring-offset-2 group-focus-visible:ring-[#4A4458]"
+             group-focus-visible:ring-2 group-focus-visible:ring-offset-2 group-focus-visible:ring-[#4A4458]
+             lg:h-auto lg:w-auto lg:bg-transparent lg:group-hover:brightness-100 lg:group-focus-visible:ring-0"
         :class="active ? indicatorClass : inactiveIndicatorClass"
     >
       <span
@@ -62,8 +68,8 @@ const iconStyle = computed<CSSProperties>(() => ({
     </span>
 
     <span
-        class="text-xs tracking-wide"
-        :class="[labelClass, active ? 'font-bold' : 'font-medium']"
+        class="text-xs tracking-wide lg:whitespace-nowrap lg:text-sm"
+        :class="[labelClass, active ? 'font-bold' : 'font-medium', compacto ? 'lg:sr-only' : '']"
     >{{ label }}</span>
   </button>
 </template>
